@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caderno de Refeições</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+:root{
+  --linen:#F1EEE4;
+  --linen-2:#E8E3D4;
+  --ink:#2A2A24;
+  --ink-soft:#6B675A;
+  --sage:#5C7A5A;
+  --sage-soft:#DCE5D8;
+  --mustard:#D9A63E;
+  --brick:#B85C4A;
+  --brick-soft:#F3DFD9;
+  --line:#D8D2C0;
+  --white:#FBFAF6;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--linen);
+  color:var(--ink);
+  font-family:'Inter',sans-serif;
+  min-height:100vh;
+  padding-bottom:40px;
+}
+.app{
+  max-width:480px;
+  margin:0 auto;
+  padding:20px 18px 0;
+}
+header.top{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  margin-bottom:4px;
+}
+h1{
+  font-family:'Fraunces',serif;
+  font-optical-sizing:auto;
+  font-weight:700;
+  font-size:26px;
+  margin:0;
+  letter-spacing:-0.01em;
+}
+.gear-btn{
+  background:none;
+  border:none;
+  font-size:20px;
+  cursor:pointer;
+  color:var(--ink-soft);
+  padding:6px;
+  line-height:1;
+}
+.week-range{
+  font-size:13px;
+  color:var(--ink-soft);
+  margin-bottom:22px;
+}
+
+/* ring */
+.ring-card{
+  background:var(--white);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:22px 20px;
+  display:flex;
+  align-items:center;
+  gap:18px;
+  margin-bottom:18px;
+}
+.ring-wrap{
+  position:relative;
+  width:104px;
+  height:104px;
+  flex-shrink:0;
+}
+.ring-wrap svg{ transform:rotate(-90deg); }
+.ring-pct{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:'IBM Plex Mono',monospace;
+  font-weight:600;
+  font-size:22px;
+}
+.ring-info .label{
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  color:var(--ink-soft);
+  margin-bottom:4px;
+}
+.ring-info .value{
+  font-family:'Fraunces',serif;
+  font-weight:600;
+  font-size:17px;
+}
+.ring-info .sub{
+  font-size:12px;
+  color:var(--ink-soft);
+  margin-top:6px;
+}
+
+/* day tabs */
+.days{
+  display:flex;
+  gap:6px;
+  margin-bottom:18px;
+}
+.day-btn{
+  flex:1;
+  background:var(--white);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:8px 0 6px;
+  text-align:center;
+  cursor:pointer;
+  font-family:'Inter',sans-serif;
+}
+.day-btn .dname{
+  display:block;
+  font-size:11px;
+  color:var(--ink-soft);
+  text-transform:uppercase;
+  letter-spacing:0.04em;
+}
+.day-btn .ddot{
+  display:block;
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  margin:5px auto 0;
+  background:var(--line);
+}
+.day-btn.active{
+  border-color:var(--ink);
+  background:var(--ink);
+}
+.day-btn.active .dname{ color:var(--linen); }
+.day-btn.today .dname{ color:var(--sage); font-weight:700; }
+.day-btn.active.today .dname{ color:var(--mustard); }
+
+/* slot list */
+.slots-card{
+  background:var(--white);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:6px 6px;
+  margin-bottom:20px;
+}
+.slot-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 12px;
+  border-bottom:1px solid var(--line);
+}
+.slot-row:last-child{ border-bottom:none; }
+.slot-name{
+  font-size:15px;
+  font-weight:500;
+}
+.status-btn{
+  border:none;
+  border-radius:20px;
+  padding:7px 14px;
+  font-family:'Inter',sans-serif;
+  font-size:12.5px;
+  font-weight:600;
+  cursor:pointer;
+  min-width:96px;
+  text-align:center;
+  transition:background .15s ease;
+}
+.status-pendente{ background:var(--linen-2); color:var(--ink-soft); }
+.status-seguido{ background:var(--sage-soft); color:var(--sage); }
+.status-nao-seguido{ background:var(--brick-soft); color:var(--brick); }
+
+.empty-note{
+  text-align:center;
+  color:var(--ink-soft);
+  font-size:13px;
+  padding:30px 10px;
+}
+
+/* setup / config screen */
+.setup{
+  display:none;
+}
+.setup.show{ display:block; }
+.setup h2{
+  font-family:'Fraunces',serif;
+  font-size:20px;
+  margin:0 0 6px;
+}
+.setup p.hint{
+  font-size:13px;
+  color:var(--ink-soft);
+  margin:0 0 18px;
+  line-height:1.5;
+}
+.slot-input-row{
+  display:flex;
+  gap:8px;
+  margin-bottom:10px;
+}
+.slot-input-row input{
+  flex:1;
+  padding:11px 12px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  font-family:'Inter',sans-serif;
+  font-size:14px;
+  background:var(--white);
+  color:var(--ink);
+}
+.slot-input-row input:focus{
+  outline:2px solid var(--sage);
+  outline-offset:1px;
+}
+.remove-x{
+  background:var(--white);
+  border:1px solid var(--line);
+  border-radius:10px;
+  width:40px;
+  color:var(--brick);
+  font-size:16px;
+  cursor:pointer;
+}
+.add-slot-btn{
+  width:100%;
+  padding:11px;
+  background:none;
+  border:1px dashed var(--ink-soft);
+  border-radius:10px;
+  color:var(--ink-soft);
+  font-family:'Inter',sans-serif;
+  font-size:13.5px;
+  cursor:pointer;
+  margin-bottom:22px;
+}
+.primary-btn{
+  width:100%;
+  padding:13px;
+  background:var(--ink);
+  color:var(--linen);
+  border:none;
+  border-radius:12px;
+  font-family:'Inter',sans-serif;
+  font-weight:600;
+  font-size:14.5px;
+  cursor:pointer;
+}
+.secondary-btn{
+  width:100%;
+  padding:12px;
+  background:none;
+  border:1px solid var(--line);
+  color:var(--ink-soft);
+  border-radius:12px;
+  font-family:'Inter',sans-serif;
+  font-size:13.5px;
+  cursor:pointer;
+  margin-top:10px;
+}
+.main-view{ display:none; }
+.main-view.show{ display:block; }
+
+.session-note{
+  background:var(--brick-soft);
+  color:var(--brick);
+  border-radius:10px;
+  padding:9px 12px;
+  font-size:12px;
+  line-height:1.4;
+  margin-bottom:16px;
+}
+.free-card{
+  background:var(--white);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:16px;
+  margin-bottom:20px;
+}
+.free-title{
+  font-family:'Fraunces',serif;
+  font-weight:600;
+  font-size:16px;
+  margin-bottom:4px;
+}
+.free-hint{
+  font-size:12px;
+  color:var(--ink-soft);
+  margin-bottom:12px;
+  line-height:1.4;
+}
+.free-add-row{
+  display:flex;
+  gap:8px;
+  margin-bottom:10px;
+}
+.free-add-row input{
+  flex:1;
+  padding:10px 12px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  font-family:'Inter',sans-serif;
+  font-size:14px;
+  background:var(--linen);
+  color:var(--ink);
+}
+.free-add-row input:focus{
+  outline:2px solid var(--mustard);
+  outline-offset:1px;
+}
+.free-add-btn{
+  width:42px;
+  border:none;
+  border-radius:10px;
+  background:var(--mustard);
+  color:var(--white);
+  font-size:20px;
+  font-weight:600;
+  cursor:pointer;
+  line-height:1;
+}
+.free-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:8px 10px;
+  background:var(--linen);
+  border-radius:10px;
+  margin-bottom:6px;
+}
+.free-item span{
+  font-size:13.5px;
+}
+.free-item button{
+  background:none;
+  border:none;
+  color:var(--brick);
+  font-size:16px;
+  cursor:pointer;
+  padding:0 4px;
+}
+.free-empty{
+  font-size:12.5px;
+  color:var(--ink-soft);
+  padding:6px 2px;
+}
+
+.lock-screen{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  padding:80px 10px 20px;
+}
+.lock-screen.show{ display:flex; }
+.lock-icon{
+  font-size:34px;
+  margin-bottom:14px;
+}
+.lock-title{
+  font-family:'Fraunces',serif;
+  font-size:20px;
+  margin-bottom:8px;
+}
+.lock-hint{
+  font-size:13px;
+  color:var(--ink-soft);
+  line-height:1.5;
+  margin-bottom:22px;
+  max-width:300px;
+}
+.lock-input{
+  width:100%;
+  max-width:260px;
+  text-align:center;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  padding:13px 12px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:16px;
+  background:var(--white);
+  color:var(--ink);
+  margin-bottom:12px;
+}
+.lock-input:focus{
+  outline:2px solid var(--sage);
+  outline-offset:1px;
+}
+.lock-screen .primary-btn{
+  max-width:260px;
+}
+.lock-error{
+  color:var(--brick);
+  font-size:12.5px;
+  margin-top:12px;
+  min-height:16px;
+}
+
+.loading{
+  display:none;
+  text-align:center;
+  padding:60px 20px;
+  color:var(--ink-soft);
+  font-size:14px;
+}
+.loading.show{ display:block; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- LOCK SCREEN -->
+  <div id="lockScreen" class="lock-screen">
+    <div class="lock-icon">🔒</div>
+    <h2 class="lock-title">Acesso protegido</h2>
+    <p class="lock-hint">Digite a senha que você recebeu para abrir o Caderno de Refeições.</p>
+    <input type="text" id="lockInput" class="lock-input" placeholder="Senha" autocomplete="off" autocapitalize="characters">
+    <button id="lockSubmitBtn" class="primary-btn">Entrar</button>
+    <p class="lock-error" id="lockError"></p>
+  </div>
+
+  <div id="loading" class="loading">carregando seu caderno…</div>
+
+  <!-- SETUP SCREEN -->
+  <div id="setup" class="setup">
+    <header class="top">
+      <h1>Seu plano</h1>
+    </header>
+    <p class="hint">Liste as refeições que fazem parte do seu plano diário. Todo dia você vai marcar se seguiu cada uma delas.</p>
+    <div id="slotInputs"></div>
+    <button class="add-slot-btn" id="addSlotBtn">+ adicionar refeição</button>
+    <button class="primary-btn" id="saveSetupBtn">Salvar plano</button>
+  </div>
+
+  <!-- MAIN SCREEN -->
+  <div id="mainView" class="main-view">
+    <header class="top">
+      <h1>Caderno de Refeições</h1>
+      <button class="gear-btn" id="editPlanBtn" title="Editar plano" aria-label="Editar plano">⚙</button>
+    </header>
+    <div class="week-range" id="weekRange"></div>
+    <div class="session-note" id="sessionNote">⚠ Para seus dados ficarem salvos de verdade, abra este arquivo direto no navegador do celular (baixe e abra no Safari/Chrome), não dentro do Claude.</div>
+
+    <div class="ring-card">
+      <div class="ring-wrap">
+        <svg width="104" height="104" viewBox="0 0 104 104">
+          <circle cx="52" cy="52" r="44" fill="none" stroke="var(--linen-2)" stroke-width="10"/>
+          <circle id="ringProgress" cx="52" cy="52" r="44" fill="none" stroke="var(--sage)" stroke-width="10" stroke-linecap="round"/>
+        </svg>
+        <div class="ring-pct" id="ringPct">0%</div>
+      </div>
+      <div class="ring-info">
+        <div class="label">Adesão da semana</div>
+        <div class="value" id="ringSummary">0 de 0 refeições</div>
+        <div class="sub" id="ringSub">nenhum registro ainda</div>
+      </div>
+    </div>
+
+    <div class="days" id="daysRow"></div>
+
+    <div class="slots-card" id="slotsCard"></div>
+
+    <div class="free-card">
+      <div class="free-title">Refeições livres</div>
+      <div class="free-hint">Comeu algo fora do plano? Registre aqui — não conta na sua adesão.</div>
+      <div class="free-add-row">
+        <input type="text" id="freeInput" placeholder="ex: Pizza no jantar" maxlength="60">
+        <button id="freeAddBtn" class="free-add-btn">+</button>
+      </div>
+      <div id="freeList"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const DAY_NAMES = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+const DAY_NAMES_FULL = ['Segunda','Terça','Quarta','Quinta','Sexta','Sábado','Domingo'];
+const DEFAULT_SLOTS = ['Café da manhã','Almoço','Lanche da tarde','Jantar'];
+const STATUS_CYCLE = ['pendente','seguido','nao-seguido'];
+const STATUS_LABEL = {pendente:'Pendente', seguido:'✓ Segui', 'nao-seguido':'✕ Não segui'};
+
+let config = null; // { slots: [...] }
+let weekLog = {};  // { 'YYYY-MM-DD': { slotName: status } }
+let selectedDateISO = null;
+let mondayISO = null;
+
+function pad(n){ return n < 10 ? '0'+n : ''+n; }
+function toISO(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function getMonday(d){
+  const date = new Date(d);
+  const day = date.getDay(); // 0=Sun..6=Sat
+  const diff = day === 0 ? -6 : 1 - day;
+  date.setDate(date.getDate() + diff);
+  date.setHours(0,0,0,0);
+  return date;
+}
+function weekDates(){
+  const monday = new Date(mondayISO + 'T00:00:00');
+  const arr = [];
+  for(let i=0;i<7;i++){
+    const d = new Date(monday);
+    d.setDate(monday.getDate()+i);
+    arr.push(toISO(d));
+  }
+  return arr;
+}
+
+// Usa localStorage do navegador. Isso só persiste de verdade quando este arquivo
+// é aberto diretamente no navegador (fora da janela de artefato do Claude), pois
+// o ambiente de artefato do Claude bloqueia armazenamento de navegador por segurança.
+const LS_PREFIX = 'rotina-alimentar:';
+
+async function loadConfig(){
+  try{
+    const raw = localStorage.getItem(LS_PREFIX + 'config');
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){
+    console.error('loadConfig failed', e);
+    return null;
+  }
+}
+async function saveConfig(cfg){
+  try{
+    localStorage.setItem(LS_PREFIX + 'config', JSON.stringify(cfg));
+    return true;
+  }catch(e){
+    console.error('saveConfig failed', e);
+    return false;
+  }
+}
+async function loadWeek(monISO){
+  try{
+    const raw = localStorage.getItem(LS_PREFIX + 'week:' + monISO);
+    return raw ? JSON.parse(raw) : {};
+  }catch(e){
+    console.error('loadWeek failed', e);
+    return {};
+  }
+}
+async function saveWeek(monISO, data){
+  try{
+    localStorage.setItem(LS_PREFIX + 'week:' + monISO, JSON.stringify(data));
+    return true;
+  }catch(e){
+    console.error('saveWeek failed', e);
+    return false;
+  }
+}
+
+function renderSetup(existingSlots){
+  const wrap = document.getElementById('slotInputs');
+  wrap.innerHTML = '';
+  const slots = existingSlots && existingSlots.length ? existingSlots : DEFAULT_SLOTS.slice();
+  slots.forEach(name => addSlotInputRow(name));
+}
+function addSlotInputRow(value){
+  const wrap = document.getElementById('slotInputs');
+  const row = document.createElement('div');
+  row.className = 'slot-input-row';
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.value = value || '';
+  input.placeholder = 'ex: Lanche da manhã';
+  input.maxLength = 40;
+  const rm = document.createElement('button');
+  rm.className = 'remove-x';
+  rm.textContent = '×';
+  rm.type = 'button';
+  rm.onclick = () => row.remove();
+  row.appendChild(input);
+  row.appendChild(rm);
+  wrap.appendChild(row);
+}
+
+async function handleSaveSetup(){
+  const btn = document.getElementById('saveSetupBtn');
+  const inputs = document.querySelectorAll('#slotInputs input');
+  const slots = Array.from(inputs).map(i => i.value.trim()).filter(Boolean);
+  if(slots.length === 0){
+    alert('Adicione pelo menos uma refeição ao seu plano.');
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Salvando…';
+  config = { slots };
+  await saveConfig(config);
+  btn.disabled = false;
+  btn.textContent = 'Salvar plano';
+  document.getElementById('setup').classList.remove('show');
+  document.getElementById('mainView').classList.add('show');
+  await initWeek();
+}
+
+async function initWeek(){
+  const today = new Date();
+  mondayISO = toISO(getMonday(today));
+  selectedDateISO = toISO(today);
+  weekLog = await loadWeek(mondayISO);
+  renderWeekRange();
+  renderDaysRow();
+  renderSlots();
+  renderFreeMeals();
+  renderRing();
+}
+
+function renderWeekRange(){
+  const dates = weekDates();
+  const start = new Date(dates[0]+'T00:00:00');
+  const end = new Date(dates[6]+'T00:00:00');
+  const fmt = (d) => d.getDate() + ' ' + d.toLocaleDateString('pt-BR',{month:'short'}).replace('.','');
+  document.getElementById('weekRange').textContent = fmt(start) + ' – ' + fmt(end);
+}
+
+function dayStats(dateISO){
+  const entry = weekLog[dateISO] || {};
+  let done = 0, missed = 0;
+  config.slots.forEach(s => {
+    const st = entry[s] || 'pendente';
+    if(st === 'seguido') done++;
+    else if(st === 'nao-seguido') missed++;
+  });
+  return {done, missed, total: config.slots.length, marked: done+missed};
+}
+
+function renderDaysRow(){
+  const row = document.getElementById('daysRow');
+  row.innerHTML = '';
+  const dates = weekDates();
+  const todayISO = toISO(new Date());
+  dates.forEach((dateISO, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'day-btn';
+    if(dateISO === selectedDateISO) btn.classList.add('active');
+    if(dateISO === todayISO) btn.classList.add('today');
+    const stats = dayStats(dateISO);
+    let dotColor = 'var(--line)';
+    if(stats.marked > 0){
+      dotColor = stats.missed === 0 ? 'var(--sage)' : (stats.done === 0 ? 'var(--brick)' : 'var(--mustard)');
+    }
+    btn.innerHTML = `<span class="dname">${DAY_NAMES[idx]}</span><span class="ddot" style="background:${dotColor}"></span>`;
+    btn.onclick = () => {
+      selectedDateISO = dateISO;
+      renderDaysRow();
+      renderSlots();
+      renderFreeMeals();
+    };
+    row.appendChild(btn);
+  });
+}
+
+function renderSlots(){
+  const card = document.getElementById('slotsCard');
+  card.innerHTML = '';
+  if(!config.slots.length){
+    card.innerHTML = '<div class="empty-note">Nenhuma refeição cadastrada no plano.</div>';
+    return;
+  }
+  const entry = weekLog[selectedDateISO] || {};
+  config.slots.forEach(slotName => {
+    const status = entry[slotName] || 'pendente';
+    const row = document.createElement('div');
+    row.className = 'slot-row';
+    const label = document.createElement('div');
+    label.className = 'slot-name';
+    label.textContent = slotName;
+    const btn = document.createElement('button');
+    btn.className = 'status-btn status-' + status;
+    btn.textContent = STATUS_LABEL[status];
+    btn.onclick = () => cycleStatus(slotName);
+    row.appendChild(label);
+    row.appendChild(btn);
+    card.appendChild(row);
+  });
+}
+
+async function cycleStatus(slotName){
+  if(!weekLog[selectedDateISO]) weekLog[selectedDateISO] = {};
+  const current = weekLog[selectedDateISO][slotName] || 'pendente';
+  const idx = STATUS_CYCLE.indexOf(current);
+  const next = STATUS_CYCLE[(idx+1) % STATUS_CYCLE.length];
+  weekLog[selectedDateISO][slotName] = next;
+  // update UI immediately, save in background so a storage hiccup never blocks tapping
+  renderSlots();
+  renderDaysRow();
+  renderRing();
+  const ok = await saveWeek(mondayISO, weekLog);
+  if(!ok) console.error('Falha ao salvar o registro de', slotName);
+}
+
+function renderRing(){
+  const dates = weekDates();
+  let done = 0, missed = 0, total = 0;
+  dates.forEach(dateISO => {
+    const s = dayStats(dateISO);
+    done += s.done;
+    missed += s.missed;
+    total += s.total;
+  });
+  const marked = done + missed;
+  const pct = marked > 0 ? Math.round((done / marked) * 100) : 0;
+
+  const circle = document.getElementById('ringProgress');
+  const r = 44;
+  const circumference = 2 * Math.PI * r;
+  const offset = circumference - (pct/100) * circumference;
+  circle.style.strokeDasharray = circumference;
+  circle.style.strokeDashoffset = marked > 0 ? offset : circumference;
+  circle.style.stroke = pct >= 80 ? 'var(--sage)' : (pct >= 50 ? 'var(--mustard)' : 'var(--brick)');
+
+  document.getElementById('ringPct').textContent = pct + '%';
+  document.getElementById('ringSummary').textContent = `${done} de ${total} refeições`;
+  document.getElementById('ringSub').textContent = marked === 0
+    ? 'nenhum registro ainda'
+    : `${missed} não seguidas · ${total - marked} pendentes`;
+}
+
+async function boot(){
+  try{
+    localStorage.setItem(LS_PREFIX + 'test', '1');
+    if(localStorage.getItem(LS_PREFIX + 'test') === '1'){
+      document.getElementById('sessionNote').style.display = 'none';
+    }
+    localStorage.removeItem(LS_PREFIX + 'test');
+  }catch(e){
+    // banner stays visible — storage isn't working in this context
+  }
+  try{
+    config = await loadConfig();
+  }catch(e){
+    console.error('boot: loadConfig failed', e);
+    config = null;
+  }
+  document.getElementById('loading').style.display = 'none';
+  try{
+    if(config && config.slots && config.slots.length){
+      document.getElementById('mainView').classList.add('show');
+      await initWeek();
+    }else{
+      renderSetup(null);
+      document.getElementById('setup').classList.add('show');
+    }
+  }catch(e){
+    console.error('boot: render failed', e);
+    renderSetup(null);
+    document.getElementById('setup').classList.add('show');
+  }
+}
+
+function renderFreeMeals(){
+  const wrap = document.getElementById('freeList');
+  wrap.innerHTML = '';
+  const entry = weekLog[selectedDateISO] || {};
+  const list = entry._free || [];
+  if(list.length === 0){
+    wrap.innerHTML = '<div class="free-empty">Nenhuma refeição livre registrada nesse dia.</div>';
+    return;
+  }
+  list.forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'free-item';
+    const span = document.createElement('span');
+    span.textContent = item.text;
+    const btn = document.createElement('button');
+    btn.textContent = '×';
+    btn.onclick = () => removeFreeMeal(item.id);
+    row.appendChild(span);
+    row.appendChild(btn);
+    wrap.appendChild(row);
+  });
+}
+
+async function addFreeMeal(){
+  const input = document.getElementById('freeInput');
+  const text = input.value.trim();
+  if(!text) return;
+  if(!weekLog[selectedDateISO]) weekLog[selectedDateISO] = {};
+  if(!weekLog[selectedDateISO]._free) weekLog[selectedDateISO]._free = [];
+  weekLog[selectedDateISO]._free.push({ id: Date.now()+'-'+Math.random().toString(36).slice(2,7), text });
+  input.value = '';
+  renderFreeMeals();
+  const ok = await saveWeek(mondayISO, weekLog);
+  if(!ok) console.error('Falha ao salvar refeição livre');
+}
+
+async function removeFreeMeal(id){
+  const entry = weekLog[selectedDateISO];
+  if(!entry || !entry._free) return;
+  entry._free = entry._free.filter(i => i.id !== id);
+  renderFreeMeals();
+  const ok = await saveWeek(mondayISO, weekLog);
+  if(!ok) console.error('Falha ao remover refeição livre');
+}
+
+document.getElementById('freeAddBtn').onclick = addFreeMeal;
+document.getElementById('freeInput').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter') addFreeMeal();
+});
+
+document.getElementById('addSlotBtn').onclick = () => addSlotInputRow('');
+document.getElementById('saveSetupBtn').onclick = handleSaveSetup;
+document.getElementById('editPlanBtn').onclick = () => {
+  document.getElementById('mainView').classList.remove('show');
+  renderSetup(config.slots);
+  document.getElementById('setup').classList.add('show');
+};
+
+// --- Bloqueio por senha ---
+// Isso é uma trava simples do lado do cliente, pensada para impedir abertura
+// casual por quem não tem a senha. Não é segurança real: qualquer pessoa com
+// conhecimento técnico pode ler o código-fonte e contornar. O hash abaixo
+// corresponde à senha combinada fora do app.
+const LOCK_HASH = '60fd877c1aacd6630aefe9125e80bdaebe70a795446248b3693dc0f82a67007f';
+const LOCK_KEY = LS_PREFIX + 'unlocked';
+
+async function sha256Hex(text){
+  const enc = new TextEncoder().encode(text);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function tryUnlock(){
+  const input = document.getElementById('lockInput');
+  const errorEl = document.getElementById('lockError');
+  const value = input.value.trim().toUpperCase();
+  if(!value){ return; }
+  const hash = await sha256Hex(value);
+  if(hash === LOCK_HASH){
+    try{ localStorage.setItem(LOCK_KEY, '1'); }catch(e){}
+    document.getElementById('lockScreen').classList.remove('show');
+    startApp();
+  }else{
+    errorEl.textContent = 'Senha incorreta. Tente de novo.';
+    input.value = '';
+    input.focus();
+  }
+}
+
+function startApp(){
+  document.getElementById('loading').classList.add('show');
+  boot();
+}
+
+function initLock(){
+  let alreadyUnlocked = false;
+  try{ alreadyUnlocked = localStorage.getItem(LOCK_KEY) === '1'; }catch(e){}
+  if(alreadyUnlocked){
+    startApp();
+    return;
+  }
+  document.getElementById('lockScreen').classList.add('show');
+  document.getElementById('lockSubmitBtn').onclick = tryUnlock;
+  document.getElementById('lockInput').addEventListener('keydown', (e) => {
+    if(e.key === 'Enter') tryUnlock();
+  });
+  document.getElementById('lockInput').focus();
+}
+
+initLock();
+</script>
+</body>
+</html>
